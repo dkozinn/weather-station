@@ -6,16 +6,22 @@
 
 from influxdb import InfluxDBClient
 import math
+import configparser
+from pathlib import Path
+import sys
 
-#TODO# #2 Replace static credentials with config file
-#TODO# #1 Implement Dewpoint
-
-user="rvweather"
-password="NWS-Upton"
-dbname="scratch"
-host="aws.kozinn.com"
-module="calc"
-station="K2DBK"
+config = configparser.ConfigParser()
+try:
+    config.read_file(open(str(Path.home())+'/.config/hi/hi.ini'))
+    # config.read_file('hi.ini')
+    user=config['database']['user']
+    password=config['database']['password']
+    dbname=config['database']['dbname']
+    host=config['database']['host']
+    module=config['station']['module']
+    station=config['station']['station']
+except Exception as E:
+    sys.exit("Could not read config file: "+str(E))
 
 temp_query="select last(value) from temperature where module=~/Outdoor/"
 hum_query="select last(value) from humidity where module=~/Outdoor/"
@@ -45,9 +51,8 @@ if T < 50:                  # Calculate wind chill
     print(timestamp, T, W, CHILL)
     lineout="chill,station="+station+",module=calc value="+str(CHILL)+" "+str(timestamp)
 
-elif RH<40 or T < 80:
-    exit    #No heat index at those conditions
-
+elif RH<40 or T < 80:   #No heat index at those conditions
+    exit    #TODO# #5  This needs to exit completely otherwise it falls through and re-writes dewpoint below
 else:       # Heat index
     HI_simple = 0.5 * (T + 61.0 + ((T-68.0)*1.2) + (RH*0.094))
     if (T+HI_simple)/2 > 80:
