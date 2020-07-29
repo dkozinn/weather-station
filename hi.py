@@ -8,6 +8,7 @@ from influxdb import InfluxDBClient
 import math
 
 #TODO# Replace static credentials with config file
+#TODO# Implement Dewpoint
 
 user="rvweather"
 password="NWS-Upton"
