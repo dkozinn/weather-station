@@ -10,10 +10,6 @@ import configparser
 from pathlib import Path
 import sys
 
-
-
-
-
 config = configparser.ConfigParser()
 try:
     config.read_file(open(str(Path.home())+'/.config/hi/hi.ini'))
