@@ -15,3 +15,13 @@ https://grafana.com/grafana/dashboards/12378
 # cat /etc/cron.d/netatmo
 */5 * * * * root  /usr/local/bin/netatmo_influx.py > /dev/null 2>&1
 ```
+
+## Calculated values
+
+Running ```hi.py``` via cron will calculate dewpoint and optionally heat index or wind chill if the temperature and humidity fall into the valid ranges. By default, these values will be inserted into Influx from a module named **calc** with measurement names **dewpoint**, **hi**, and **windchill**.
+
+Configuration to run ```hi.py``` must be provided in the ```hi.ini``` file which must be located at ```$HOME/.config/hi/hi.ini```.
+
+### Known issues
+
+* The calculated values are computed and saved in the db inconsistently. Heat index is stored in degrees C, dewpoint and wind chill are stored in degrees F. Issue [#3](https://github.com/dkozinn/weather-station/issues/3) will eventually fix this.
