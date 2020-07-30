@@ -43,7 +43,7 @@ TD=243.04*(math.log(RH/100)+((17.625*Tc)/(243.04+Tc)))/(17.625-math.log(RH/100)-
 print(timestamp, T, RH, TD)
 lineout="dewpoint,station="+station+",module=calc value="+str(TD)+" "+str(timestamp)
 client.write_points(lineout,protocol='line')
-
+T=60
 if T < 50:                  # Calculate wind chill
     w=client.query(wind_query,epoch="ns")
     W=next(w.get_points())["last"]
@@ -52,7 +52,7 @@ if T < 50:                  # Calculate wind chill
     lineout="chill,station="+station+",module=calc value="+str(CHILL)+" "+str(timestamp)
 
 elif RH<40 or T < 80:   #No heat index at those conditions
-    exit    #TODO# #5  This needs to exit completely otherwise it falls through and re-writes dewpoint below
+    sys.exit()    #TODO# #5  This needs to exit completely otherwise it falls through and re-writes dewpoint below
 else:       # Heat index
     HI_simple = 0.5 * (T + 61.0 + ((T-68.0)*1.2) + (RH*0.094))
     if (T+HI_simple)/2 > 80:
