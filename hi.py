@@ -43,7 +43,7 @@ TD=243.04*(math.log(RH/100)+((17.625*Tc)/(243.04+Tc)))/(17.625-math.log(RH/100)-
 print(timestamp, T, RH, TD)
 lineout="dewpoint,station="+station+",module=calc value="+str(TD)+" "+str(timestamp)
 client.write_points(lineout,protocol='line')
-T=60
+
 if T < 50:                  # Calculate wind chill
     w=client.query(wind_query,epoch="ns")
     W=next(w.get_points())["last"]
