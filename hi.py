@@ -20,7 +20,6 @@ try:
     host=config['database']['host']
     module=config['station']['module']
     station=config['station']['station']
-    enable_debug=config['misc']['debug']
     enable_debug=config['misc'].getboolean('debug')
 except Exception as E:
     sys.exit("Could not read config file: "+str(E))
