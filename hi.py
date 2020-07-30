@@ -9,19 +9,24 @@ import math
 import configparser
 from pathlib import Path
 import sys
+import logging
 
 config = configparser.ConfigParser()
 try:
     config.read_file(open(str(Path.home())+'/.config/hi/hi.ini'))
-    # config.read_file('hi.ini')
     user=config['database']['user']
     password=config['database']['password']
     dbname=config['database']['dbname']
     host=config['database']['host']
     module=config['station']['module']
     station=config['station']['station']
+    enable_debug=config['misc']['debug']
+    enable_debug=config['misc'].getboolean('debug')
 except Exception as E:
     sys.exit("Could not read config file: "+str(E))
+
+if enable_debug:
+    logging.basicConfig(level=logging.INFO)
 
 temp_query="select last(value) from temperature where module=~/Outdoor/"
 hum_query="select last(value) from humidity where module=~/Outdoor/"
@@ -40,7 +45,7 @@ RH=next(h.get_points())["last"]
 # Dewpoint doesn't have limits like wind chill & heat index, so calculate that first
 
 TD=243.04*(math.log(RH/100)+((17.625*Tc)/(243.04+Tc)))/(17.625-math.log(RH/100)-((17.625*Tc)/(243.04+Tc)))
-print(timestamp, T, RH, TD)
+logging.info("TD calc: %d %d %d %d", timestamp, T, RH, TD)
 lineout="dewpoint,station="+station+",module=calc value="+str(TD)+" "+str(timestamp)
 client.write_points(lineout,protocol='line')
 
@@ -48,7 +53,7 @@ if T < 50:                  # Calculate wind chill
     w=client.query(wind_query,epoch="ns")
     W=next(w.get_points())["last"]
     CHILL=((35.74+(0.6215 * T) - (35.75 * W**0.16) + (0.4275 * T * W**0.16))-32)
-    print(timestamp, T, W, CHILL)
+    logging.info("Windchill calc: %d %d %d %d",timestamp, T, W, CHILL)
     lineout="chill,station="+station+",module=calc value="+str(CHILL)+" "+str(timestamp)
 
 elif RH<40 or T < 80:   #No heat index at those conditions
@@ -60,7 +65,7 @@ else:       # Heat index
     else:
         HI=HI_simple
 
-    print(timestamp, T, RH, HI,HI_simple)
+    logging.info("HI calc: %d %d %d %d %d",timestamp, T, RH, HI,HI_simple)
 
     lineout="hi,station="+station+",module=calc value="+str(HI)+" "+str(timestamp)
     
