@@ -11,14 +11,16 @@ from pathlib import Path
 import sys
 import logging
 
-def write_db(metric,station,value,ts):
-    lineout=metric+",station="+station+",module=calc value="+str(value)+" "+str(ts)
+def write_db(metric,station,value,ts,valid=True):
+    lineout=metric+",station="+station+",module=calc,valid="+str(valid)+" value="+str(value)+" "+str(ts)
     logging.info("write_db writing: "+lineout)
     client.write_points(lineout,protocol='line')
 
 # defaults for hi & windchill if not present
 HI=-1
 CHILL=999
+hi_valid=False
+chill_valid=False
 
 config = configparser.ConfigParser()
 try:
@@ -57,12 +59,14 @@ logging.info("TD calc: %d %d %d %d", timestamp, T, RH, TD)
 write_db("dewpoint",station,TD,timestamp)
 
 if T < 50:                  # Calculate wind chill
+    chill_valid=True
     w=client.query(wind_query,epoch="ns")
     W=next(w.get_points())["last"]
     CHILL=((35.74+(0.6215 * T) - (35.75 * W**0.16) + (0.4275 * T * W**0.16))-32)
     logging.info("Windchill calc: %d %d %d %d",timestamp, T, W, CHILL)
 
 if RH>=40 and T>=80:      # Calculate heat index
+    hi_valid=True
     HI_simple = 0.5 * (T + 61.0 + ((T-68.0)*1.2) + (RH*0.094))
     if (T+HI_simple)/2 > 80:
         HI = -42.379 + 2.04901523*T + 10.14333127*RH - .22475541*T*RH - .00683783*T*T - .05481717*RH*RH + .00122874*T*T*RH + .00085282*T*RH*RH - .00000199*T*T*RH*RH
@@ -70,6 +74,5 @@ if RH>=40 and T>=80:      # Calculate heat index
         HI=HI_simple
         logging.info("HI calc: %d %d %d %d %d",timestamp, T, RH, HI,HI_simple)
     
-
-write_db("chill",station,CHILL,timestamp)
-write_db("hi",station,HI,timestamp)
+write_db("chill",station,CHILL,timestamp,chill_valid)
+write_db("hi",station,HI,timestamp,hi_valid)
