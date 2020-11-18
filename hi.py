@@ -40,7 +40,7 @@ if enable_debug:
 
 temp_query="select last(value) from temperature where module=~/Outdoor/"
 hum_query="select last(value) from humidity where module=~/Outdoor/"
-wind_query="select last(value) from windstrength where module=~/Outdoor/"
+wind_query="select last(value) from windstrength where module=~/Wind Gauge/"
 
 client = InfluxDBClient(host=host,username=user,password=password, database=dbname)
 
