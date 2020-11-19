@@ -62,7 +62,7 @@ if T < 50:                  # Calculate wind chill
     chill_valid=True
     w=client.query(wind_query,epoch="ns")
     W=next(w.get_points())["last"]
-    CHILL=((35.74+(0.6215 * T) - (35.75 * W**0.16) + (0.4275 * T * W**0.16))-32)
+    CHILL=(35.74+(0.6215 * T) - (35.75 * W**0.16) + (0.4275 * T * W**0.16))
     logging.info("Windchill calc: %d %d %d %d",timestamp, T, W, CHILL)
 
 if RH>=40 and T>=80:      # Calculate heat index
