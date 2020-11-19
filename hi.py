@@ -2,6 +2,7 @@
 
 # Heat Index: https://www.wpc.ncep.noaa.gov/html/heatindex_equation.shtml
 # Windchill: https://www.weather.gov/media/epz/wxcalc/windChill.pdf
+#   Additional criteria here: https://www.weather.gov/ddc/windchillddc
 # Dewpoint: http://bmcnoldy.rsmas.miami.edu/Humidity.html
 
 from influxdb import InfluxDBClient
@@ -58,12 +59,13 @@ TD=243.04*(math.log(RH/100)+((17.625*Tc)/(243.04+Tc)))/(17.625-math.log(RH/100)-
 logging.info("TD calc: %d %d %d %d", timestamp, T, RH, TD)
 write_db("dewpoint",station,TD,timestamp)
 
-if T < 50:                  # Calculate wind chill
-    chill_valid=True
+if T >= -45 and T <= 45:                  # Calculate wind chill
     w=client.query(wind_query,epoch="ns")
     W=next(w.get_points())["last"]
-    CHILL=(35.74+(0.6215 * T) - (35.75 * W**0.16) + (0.4275 * T * W**0.16))
-    logging.info("Windchill calc: %d %d %d %d",timestamp, T, W, CHILL)
+    if W >= 3 and W <= 60:
+        chill_valid=True
+        CHILL=(35.74+(0.6215 * T) - (35.75 * W**0.16) + (0.4275 * T * W**0.16))
+        logging.info("Windchill calc: %d %d %d %d",timestamp, T, W, CHILL)
 
 if RH>=40 and T>=80:      # Calculate heat index
     hi_valid=True
