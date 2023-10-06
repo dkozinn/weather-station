@@ -10,6 +10,8 @@ from pathlib import Path
 import lnetatmo
 from influxdb import InfluxDBClient
 
+DBNAME = "netatmo"
+
 authorization = lnetatmo.ClientAuth()
 config = configparser.ConfigParser()
 try:
@@ -25,8 +27,8 @@ except FileNotFoundError as E:
 weatherData = lnetatmo.WeatherStationData(authorization)
 
 client = InfluxDBClient(host=host, username=user, password=password)
-if {"name": "netatmo"} not in client.get_list_database():
-    client.create_database("netatmo")
+if {"name": DBNAME} not in client.get_list_database():
+    client.create_database(DBNAME)
 
 for station in weatherData.stations:
     station_data = []
@@ -65,5 +67,5 @@ for station in weatherData.stations:
                     }
                 )
 
-    client.write_points(station_data, time_precision="s", database="netatmo")
-    client.write_points(module_data, time_precision="s", database="netatmo")
+    client.write_points(station_data, time_precision="s", database=DBNAME)
+    client.write_points(module_data, time_precision="s", database=DBNAME)
