@@ -7,6 +7,8 @@ https://grafana.com/grafana/dashboards/12378
 
 ## Installation
 
+##### TODO - Update required configuration
+
 * Create a [Netatmo developer account](https://dev.netatmo.com/apidocumentation) and fill in your CLIENT_ID, CLIENT_SECRET, USERNAME and PASSWORD in the script.
 * This script assumes you have InfluxDB running on the same machine as this script and it uses no authentication.
 * Create a cron job to run the script periodically e.g.
@@ -20,7 +22,7 @@ https://grafana.com/grafana/dashboards/12378
 
 Running ```hi.py``` via cron will calculate dewpoint and optionally heat index or wind chill if the temperature and humidity fall into the valid ranges. By default, these values will be inserted into Influx from a module named **calc** with measurement names **dewpoint**, **hi**, and **windchill**.
 
-Configuration to run ```hi.py``` must be provided in the ```hi.ini``` file which must be located at ```$HOME/.config/hi/hi.ini```.
+Configuration to run ```netatmo_influx.py``` and ```hi.py``` must be provided in the ```hi.ini``` file which must be located at ```$HOME/.config/hi/hi.ini```.
 
 ### Known issues
 
